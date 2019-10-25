@@ -1,5 +1,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+
+##Known bugs
+
+-logic for bust/winning doesn't display the last card
+
+
 ## Available Scripts
 
 In the project directory, you can run:

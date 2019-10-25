@@ -37,10 +37,28 @@ const Game = () => {
       }
     });
 
-    let initPlayerScore = p1c1.value + p1c2.value;
-    let initiDealerScore = dc1.value + dc2.value;
-    updatePlayerHandVal(initPlayerScore);
-    updateDealerHandVal(initiDealerScore);
+    let initPlayerVal = p1c1.value + p1c2.value;
+    let initDealerVal = dc1.value + dc2.value;
+    updatePlayerHandVal(initPlayerVal);
+    updateDealerHandVal(initDealerVal);
+
+    if(initPlayerVal===21&&initDealerVal===21){
+alert('push!')
+    
+    updatePlayerScore(playerScore++)
+    updateDealerScore(dealerScore++)
+    deal()
+
+    }
+
+    if(initPlayerVal===21){
+        updatePlayerScore(playerScore+=2)
+        deal()
+    }
+    if(initDealerVal===21){
+        updatePlayerScore(dealerScore+=2)
+        deal()
+    }
   };
 
   const hit = () => {
@@ -62,11 +80,27 @@ const Game = () => {
         newCard.faceValue = "A";
       }
 
-      console.log(newCard, 'newCard')
+      console.log(newCard, "newCard");
       let newVal = playerHandVal + newCard.value;
-      console.log('newVal', newVal)
+
+
+      if (newVal === 21) {
+        alert("you won the hand!");
+        updatePlayerScore(playerScore++);
+        deal();
+        return;
+      }
+
+      if (newVal > 21) {
+        alert("bust :(");
+
+        deal();
+        return;
+      }
+
       updatePlayerHandVal(newVal);
       updatePlayerHand([...playerHand, newCard]);
+
     }
   };
   useEffect(() => {
