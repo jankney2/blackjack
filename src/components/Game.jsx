@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import cards from "../deck";
 import Card from "./Card";
-import { defaultCoreCipherList } from "constants";
+
 
 const Game = () => {
   let [playerHand, updatePlayerHand] = useState([]);
@@ -61,41 +61,8 @@ const Game = () => {
     }
   };
 
-  const getNewCard=()=>{
+  const getNewCard = () => {
     let newCard = deck[Math.floor(Math.random() * 52)];
-    if (
-        newCard.value === "J" ||
-        newCard.value === "K" ||
-        newCard.value === "Q"
-      ) {
-        newCard.faceValue = newCard.value;
-        newCard.value = 10;
-      }
-  
-      if (newCard.value === "A") {
-        newCard.value = 11;
-        newCard.faceValue = "A";
-      }
-      return newCard
-  }
-  const dealerHit = () => {
-    let newCard=getNewCard()
-      let newVal = dealerHandVal + newCard.value;
-      updateDealerHandVal(newVal);
-      updateDealerHand([...dealerHand, newCard]);
-      
-      if(newVal<17){
-          hit('dealer')
-
-      }
-
-
-
-  };
-
-  const hit = type => {
-    let newCard = deck[Math.floor(Math.random() * 52)];
-
     if (
       newCard.value === "J" ||
       newCard.value === "K" ||
@@ -109,6 +76,38 @@ const Game = () => {
       newCard.value = 11;
       newCard.faceValue = "A";
     }
+    return newCard;
+  };
+  const dealerHit =  () => {
+      let newCard = getNewCard();
+      let newVal = dealerHandVal + newCard.value;
+      updateDealerHandVal(newVal);
+
+    winLogic(newVal)
+    updateDealerHand([...dealerHand, newCard]);
+
+    
+    if (newVal < 17) {
+        hit("dealer");
+        winLogic(newVal)
+
+    }
+
+
+
+    if (playerHandVal > newVal && newVal >= 17) {
+
+      hit("dealer");
+      winLogic(newVal)
+
+    }
+
+
+    
+  };
+
+  const hit = type => {
+    let newCard = getNewCard()
 
     if (type === "player") {
       console.log("hit player");
@@ -133,47 +132,53 @@ const Game = () => {
 
     if (type === "dealer") {
       console.log("dealer hit fawiojfe");
-      
-if(dealerHandVal<17){
-    dealerHit()
-}
 
+        dealerHit();
 
-if (dealerHandVal > 21) {
-  alert("dealer bust");
-  updatePlayerScore(++playerScore);
-  deal();
-  return
-}
-      if (dealerHandVal === 21) {
-        alert("dealer Win");
-        updateDealerScore((dealerScore += 2));
+    }
+  };
+
+  const winLogic = (dealer) => {
+
+      console.log('dealerhand', dealerHandVal, dealer)
+    if (dealer > 21) {
+      alert("dealer bust");
+      updatePlayerScore(++playerScore);
+      deal();
+      return;
+    }
+    if (dealer === 21) {
+      alert("dealer Win");
+      updateDealerScore((dealerScore += 2));
+      deal();
+      return;
+    }
+    if (playerHandVal === dealer) {
+      alert("dealer win");
+      updateDealerScore(dealerScore++);
+      deal();
+      return;
+    }
+
+    if (dealer >= 17) {
+      if (dealer > playerHandVal) {
+        alert("dealer win");
+        updateDealerScore(++dealerScore);
         deal();
+        return;
+      } else {
+        alert("player win");
+        updatePlayerScore(++playerScore);
+        deal();
+        return;
+      }
+    }
+
+    if(dealer>playerHandVal){
+        alert('dealer win')
+        updateDealerScore(++dealerScore)
+        deal()
         return
-      }
-      if(playerHandVal===dealerHandVal){
-          alert('dealer win')
-          updateDealerScore(dealerScore++)
-            deal()
-            return
-      }
-
-
-      if (dealerHandVal >= 17) {
-        if (dealerHandVal > playerHandVal) {
-          alert("dealer win");
-          updateDealerScore(++dealerScore);
-          deal();
-          return
-        } else {
-          alert("player win");
-          updatePlayerScore(++playerScore);
-          deal()
-          return
-        }
-
-      }
-
     }
   };
 
@@ -192,8 +197,11 @@ if (dealerHandVal > 21) {
 
   return (
     <div>
-      <div className="dealerHand">
+      <div className="hand">
+          <div className="cardHolder">
         {dealerCardMapper}
+
+          </div>
         <p>dealer hand Val: {dealerHandVal}</p>
         <p>Dealer Score:{dealerScore}</p>
       </div>
@@ -217,9 +225,13 @@ if (dealerHandVal > 21) {
         </button>
       </div>
 
-      <div className="playerHand">
+      <div className="hand">
         Player Hand
+
+        <div className="cardHolder">
         {playerCardMapper}
+
+        </div>
         <p>Player hand Val: {playerHandVal}</p>
         <p>Player Score:{playerScore}</p>
       </div>
