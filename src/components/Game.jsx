@@ -81,8 +81,9 @@ const Game = () => {
   const dealerHit =  () => {
       let newCard = getNewCard();
       let newVal = dealerHandVal + newCard.value;
+      console.log(dealerHandVal, 'before')
       updateDealerHandVal(newVal);
-
+ 
     winLogic(newVal)
     updateDealerHand([...dealerHand, newCard]);
 
