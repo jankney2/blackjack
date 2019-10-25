@@ -12,6 +12,7 @@ const Game = () => {
   let [turn, switchTurn] = useState("player");
   let [playerScore, updatePlayerScore] = useState(0);
   let [dealerScore, updateDealerScore] = useState(0);
+let [count, setCount]=useState(0)
 
   const deal = () => {
     //generate 4 random cards from the deck
@@ -60,6 +61,8 @@ const Game = () => {
       deal();
     }
   };
+
+
 
   const getNewCard = () => {
     let newCard = deck[Math.floor(Math.random() * 52)];
@@ -236,6 +239,15 @@ const Game = () => {
         <p>Player hand Val: {playerHandVal}</p>
         <p>Player Score:{playerScore}</p>
       </div>
+   
+      <button onClick={()=>{
+          console.log(count, 'before')
+          setCount(35)
+          console.log(count, 'after')
+      }}>Set Count {count}</button>
+
+
+
     </div>
   );
 };
