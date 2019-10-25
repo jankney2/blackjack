@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import cards from "../deck";
 import Card from "./Card";
+import { defaultCoreCipherList } from "constants";
 
 const Game = () => {
   let [playerHand, updatePlayerHand] = useState([]);
@@ -60,7 +61,39 @@ const Game = () => {
     }
   };
 
-  const hit = () => {
+  const getNewCard=()=>{
+    let newCard = deck[Math.floor(Math.random() * 52)];
+    if (
+        newCard.value === "J" ||
+        newCard.value === "K" ||
+        newCard.value === "Q"
+      ) {
+        newCard.faceValue = newCard.value;
+        newCard.value = 10;
+      }
+  
+      if (newCard.value === "A") {
+        newCard.value = 11;
+        newCard.faceValue = "A";
+      }
+      return newCard
+  }
+  const dealerHit = () => {
+    let newCard=getNewCard()
+      let newVal = dealerHandVal + newCard.value;
+      updateDealerHandVal(newVal);
+      updateDealerHand([...dealerHand, newCard]);
+      
+      if(newVal<17){
+          hit('dealer')
+
+      }
+
+
+
+  };
+
+  const hit = type => {
     let newCard = deck[Math.floor(Math.random() * 52)];
 
     if (
@@ -77,11 +110,9 @@ const Game = () => {
       newCard.faceValue = "A";
     }
 
-    console.log(newCard, "newCard");
-
-
-    if (turn === "player") {
-        let newVal = playerHandVal + newCard.value;
+    if (type === "player") {
+      console.log("hit player");
+      let newVal = playerHandVal + newCard.value;
       if (newVal === 21) {
         alert("you won the hand!");
         updatePlayerScore(playerScore++);
@@ -90,7 +121,7 @@ const Game = () => {
       }
 
       if (newVal > 21) {
-        alert("bust :(");
+        alert("player bust :(");
         updateDealerScore(++dealerScore);
         deal();
         return;
@@ -100,50 +131,54 @@ const Game = () => {
       updatePlayerHand([...playerHand, newCard]);
     }
 
-    if (turn === "dealer") {
-        console.log('dealer hit fawiojfe')
-        let newVal = dealerHandVal + newCard.value;
-      if (dealerHandVal < 17) {
-        updateDealerHand(...dealerHand, newCard);
-        updateDealerHandVal(newVal);
-        hit()
-      }
+    if (type === "dealer") {
+      console.log("dealer hit fawiojfe");
+      
+if(dealerHandVal<17){
+    dealerHit()
+}
 
-      if(dealerHandVal<playerHandVal){
-          updateDealerHand(...dealerHand, newCard)
-          updateDealerHandVal(newVal)
-          hit()
-      }
 
-      if(dealerHandVal===21){
-          alert('dealer Win')
-          updateDealerScore(dealerScore+=2)
+if (dealerHandVal > 21) {
+  alert("dealer bust");
+  updatePlayerScore(++playerScore);
+  deal();
+  return
+}
+      if (dealerHandVal === 21) {
+        alert("dealer Win");
+        updateDealerScore((dealerScore += 2));
+        deal();
+        return
       }
-
-      if(dealerHandVal>21){
-          alert('dealer bust')
-          updatePlayerScore(++playerScore)
-      }
-
-      if(dealerHandVal>17){
-        if(dealerHandVal>playerHandVal){
-            alert('dealer win')
-            updateDealerScore(++dealerScore)
+      if(playerHandVal===dealerHandVal){
+          alert('dealer win')
+          updateDealerScore(dealerScore++)
             deal()
-            switchTurn('player')
-        }else {
-            alert ('player win')
-                updatePlayerScore(++playerScore)
-                deal()
-                switchTurn('player')
+            return
+      }
+
+
+      if (dealerHandVal >= 17) {
+        if (dealerHandVal > playerHandVal) {
+          alert("dealer win");
+          updateDealerScore(++dealerScore);
+          deal();
+          return
+        } else {
+          alert("player win");
+          updatePlayerScore(++playerScore);
+          deal()
+          return
         }
+
       }
 
     }
   };
+
   useEffect(() => {
     deal();
-    console.log(deck.length);
   }, []);
 
   //using the index as the key in a .map is bad form, but the objects i'm using for the cards don't have an Id, so for simplicity's sake I'm using the index.
@@ -168,15 +203,14 @@ const Game = () => {
 
         <button
           onClick={() => {
-            hit();
+            hit("player");
           }}
         >
           Hit
         </button>
         <button
           onClick={() => {
-            switchTurn("dealer");
-            hit()
+            hit("dealer");
           }}
         >
           Hold
