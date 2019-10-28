@@ -1,0 +1,30 @@
+
+.cardHolder {
+display: flex;
+justify-content:  space-evenly;
+align-items: center;
+}
+
+.card {
+  border: 1px solid #000;
+  width: 25%;
+  display:flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: column;
+  padding:3%;
+}
+
+.message {
+  text-align: center;
+}
+
+.message button {
+  padding: 1%;
+  border-radius: 25%;
+  margin:.5%;
+}
+
+button:active {
+  border:0;
+}

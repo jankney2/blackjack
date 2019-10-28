@@ -1,4 +1,4 @@
- const cards=[
+ let cards=[
     {
       "suit": "hearts",
       "value": 2
@@ -208,5 +208,19 @@
       "value": "A"
     }
   ]
+
+  cards.forEach(el=>{
+    el.faceValue=el.value
+
+    if (el.value === "J" || el.value === "K" || el.value === "Q") {
+      el.faceValue = el.value;
+      el.value = 10;
+    }
+
+    if (el.value === "A") {
+      el.value = 11;
+      el.faceValue = "A";
+    }
+  })
 
   export default cards

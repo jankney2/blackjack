@@ -1,5 +1,16 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+
+##Known bugs
+
+-logic for bust/winning doesn't display the last card
+
+
+-all face cards are shown as 10s (modify data object to have a card value and a face value property that I'd work off of.)
+
+-aces don't transfer to ones-
+
+
 ## Available Scripts
 
 In the project directory, you can run:
