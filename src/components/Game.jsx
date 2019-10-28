@@ -1,108 +1,108 @@
-import React, { useState, useEffect } from "react";
+import React, { Component} from "react";
 import cards from "../deck";
 import Card from "./Card";
 
 
-const Game = () => {
-  let [playerHand, updatePlayerHand] = useState([]);
-  let [dealerHand, updateDealerHand] = useState([]);
-  let [playerHandVal, updatePlayerHandVal] = useState(0);
-  let [dealerHandVal, updateDealerHandVal] = useState(0);
-  let [deck, d] = useState(cards);
-  let [turn, switchTurn] = useState("player");
-  let [playerScore, updatePlayerScore] = useState(0);
-  let [dealerScore, updateDealerScore] = useState(0);
-let [count, setCount]=useState(0)
+export default class Game extends Component {
+  state={
+    playerHand:[], 
+    dealerHand:[], 
+    playerHandVal:0, 
+    dealerHandVal:0, 
+    deck:cards, 
+    playerScore:0, 
+    dealerScore:0, 
+  }
+  
+//     let [playerHand, updatePlayerHand] = useState([]);
+//   let [dealerHand, updateDealerHand] = useState([]);
+//   let [playerHandVal, updatePlayerHandVal] = useState(0);
+//   let [dealerHandVal, updateDealerHandVal] = useState(0);
+//   let [deck] = useState(cards);
+//   let [playerScore, updatePlayerScore] = useState(0);
+//   let [dealerScore, updateDealerScore] = useState(0);
 
-  const deal = () => {
+
+deal = () => {
     //generate 4 random cards from the deck
 
-    let p1c1 = deck[Math.floor(Math.random() * 52)];
-    let p1c2 = deck[Math.floor(Math.random() * 52)];
-    let dc1 = deck[Math.floor(Math.random() * 52)];
-    let dc2 = deck[Math.floor(Math.random() * 52)];
-
-    updateDealerHand([dc1, dc2]);
-    updatePlayerHand([p1c1, p1c2]);
-
-    let allCards = [p1c1, p1c2, dc1, dc2];
-
-    allCards.forEach(el => {
-      if (el.value === "J" || el.value === "K" || el.value === "Q") {
-        el.faceValue = el.value;
-        el.value = 10;
-      }
-
-      if (el.value === "A") {
-        el.value = 11;
-        el.faceValue = "A";
-      }
-    });
-
+    let p1c1 = this.state.deck[Math.floor(Math.random() * 52)];
+    let p1c2 = this.state.deck[Math.floor(Math.random() * 52)];
+    let dc1 = this.state.deck[Math.floor(Math.random() * 52)];
+    let dc2 = this.state.deck[Math.floor(Math.random() * 52)];
     let initPlayerVal = p1c1.value + p1c2.value;
     let initDealerVal = dc1.value + dc2.value;
-    updatePlayerHandVal(initPlayerVal);
-    updateDealerHandVal(initDealerVal);
 
-    if (initPlayerVal === 21 && initDealerVal === 21) {
+    this.setState({
+        dealerHand:[dc1, dc2],
+        playerHand:[p1c1, p1c2],
+        dealerHandVal:initDealerVal, 
+        playerHandVal:initPlayerVal
+    })
+    console.log(this.state.playerHandVal, this.state.dealerHandVal, 'init values')
+    if (this.state.playerHandVal === 21 && this.state.dealerHandVal === 21) {
       alert("push!");
 
-      updatePlayerScore(playerScore++);
-      updateDealerScore(dealerScore++);
-      deal();
+
+
+        this.setState({
+            playerScore:this.state.playerScore+1, 
+            dealerScore:this.state.dealerScore+1
+        })
+      this.deal();
     }
 
     if (initPlayerVal === 21) {
-      updatePlayerScore((playerScore += 2));
-      deal();
+        this.setState({
+            playerScore:this.state.playerScore+2
+        })
+
+      this.deal();
     }
     if (initDealerVal === 21) {
-      updatePlayerScore((dealerScore += 2));
-      deal();
+        this.setState({
+            dealerScore:this.state.dealerScore+2
+        })
+
+      this.deal();
     }
   };
 
 
 
-  const getNewCard = () => {
-    let newCard = deck[Math.floor(Math.random() * 52)];
-    if (
-      newCard.value === "J" ||
-      newCard.value === "K" ||
-      newCard.value === "Q"
-    ) {
-      newCard.faceValue = newCard.value;
-      newCard.value = 10;
-    }
-
-    if (newCard.value === "A") {
-      newCard.value = 11;
-      newCard.faceValue = "A";
-    }
+   getNewCard = () => {
+    let newCard = this.state.deck[Math.floor(Math.random() * 52)];
+   
     return newCard;
   };
-  const dealerHit =  () => {
-      let newCard = getNewCard();
-      let newVal = dealerHandVal + newCard.value;
-      console.log(dealerHandVal, 'before')
-      updateDealerHandVal(newVal);
+   dealerHit =  () => {
+      let newCard = this.getNewCard();
+      let newVal = this.state.dealerHandVal + newCard.value;
+
+      this.setState({
+          dealerHandVal:newVal
+      })
  
-    winLogic(newVal)
-    updateDealerHand([...dealerHand, newCard]);
+    this.winLogic(this.state.dealerHandVal)
+    
+    this.setState({
+        dealerHand:[...this.state.dealerHand, newCard]
+    })
+
 
     
     if (newVal < 17) {
-        hit("dealer");
-        winLogic(newVal)
+        this.hit("dealer");
+        this.winLogic(newVal)
 
     }
 
 
 
-    if (playerHandVal > newVal && newVal >= 17) {
+    if (this.state.playerHandVal > newVal && newVal >= 17) {
 
-      hit("dealer");
-      winLogic(newVal)
+    this.hit("dealer");
+      this.winLogic(newVal)
 
     }
 
@@ -110,146 +110,168 @@ let [count, setCount]=useState(0)
     
   };
 
-  const hit = type => {
-    let newCard = getNewCard()
+   hit = async (type) => {
+    let newCard = this.getNewCard()
 
     if (type === "player") {
-      console.log("hit player");
-      let newVal = playerHandVal + newCard.value;
-      if (newVal === 21) {
-        alert("you won the hand!");
-        updatePlayerScore(playerScore++);
-        deal();
-        return;
-      }
+        this.setState({
+            playerHand:[...this.state.playerHand, newCard]
+        })
+      let newVal = this.state.playerHandVal + newCard.value;
+      
+      this.setState({
+          playerHandVal:newVal
+      })
 
-      if (newVal > 21) {
-        alert("player bust :(");
-        updateDealerScore(++dealerScore);
-        deal();
-        return;
-      }
+    //   if (newVal === 21) {
+    //     alert("you won the hand!");
+    //     updatePlayerScore(playerScore++);
+    //     deal();
+    //     return;
+    //   }
 
-      updatePlayerHandVal(newVal);
-      updatePlayerHand([...playerHand, newCard]);
+    //   if (newVal > 21) {
+    //     alert("player bust :(");
+    //     updateDealerScore(++dealerScore);
+    //     deal();
+    //     return;
+    //   }
+
+
     }
 
     if (type === "dealer") {
       console.log("dealer hit fawiojfe");
 
-        dealerHit();
+        this.dealerHit();
 
     }
   };
 
-  const winLogic = (dealer) => {
+   winLogic = (dealer) => {
 
-      console.log('dealerhand', dealerHandVal, dealer)
+
     if (dealer > 21) {
       alert("dealer bust");
-      updatePlayerScore(++playerScore);
-      deal();
+      this.setState({
+          playerScore:this.state.playerScore+1
+      })
+
+      this.deal();
       return;
     }
     if (dealer === 21) {
       alert("dealer Win");
-      updateDealerScore((dealerScore += 2));
-      deal();
+        this.setState({
+            dealerScore:this.state.dealerScore+2
+        })
+
+    this.deal();
       return;
     }
-    if (playerHandVal === dealer) {
+    if (this.state.playerHandVal === dealer) {
       alert("dealer win");
-      updateDealerScore(dealerScore++);
-      deal();
+
+      this.setState({
+          dealerScore:this.state.dealerScore+1
+      })
+      this.deal();
       return;
     }
 
     if (dealer >= 17) {
-      if (dealer > playerHandVal) {
+      if (dealer > this.state.playerHandVal) {
         alert("dealer win");
-        updateDealerScore(++dealerScore);
-        deal();
+        this.setState({
+            dealerScore:this.state.dealerScore+1
+        })
+
+        this.deal();
         return;
       } else {
         alert("player win");
-        updatePlayerScore(++playerScore);
-        deal();
+        this.setState({
+            playerScore:++this.state.playerScore
+        })
+        this.deal();
         return;
       }
     }
 
-    if(dealer>playerHandVal){
+    if(dealer>this.state.playerHandVal){
         alert('dealer win')
-        updateDealerScore(++dealerScore)
-        deal()
+        this.setState({
+            dealerScore:++this.state.dealerScore
+        })
+
+        this.deal()
         return
     }
   };
 
-  useEffect(() => {
-    deal();
-  }, []);
+componentDidMount() {
+    this.deal()
+}
 
   //using the index as the key in a .map is bad form, but the objects i'm using for the cards don't have an Id, so for simplicity's sake I'm using the index.
-  let playerCardMapper = playerHand.map((el, i) => {
-    return <Card suit={el.suit} key={i} val={el.value} />;
-  });
 
-  let dealerCardMapper = dealerHand.map((el, i) => {
-    return <Card suit={el.suit} key={i} val={el.value} />;
-  });
-
-  return (
-    <div>
-      <div className="hand">
-          <div className="cardHolder">
-        {dealerCardMapper}
-
+  render(){
+    let playerCardMapper = this.state.playerHand.map((el, i) => {
+        return <Card suit={el.suit} key={i} val={el.value} />;
+      });
+    
+      let dealerCardMapper = this.state.dealerHand.map((el, i) => {
+        return <Card suit={el.suit} key={i} val={el.value} />;
+      });
+    
+      return (
+        <div>
+          <div className="hand">
+              <div className="cardHolder">
+            {dealerCardMapper}
+    
+              </div>
+            <p>dealer hand Val: {this.state.dealerHandVal}</p>
+            <p>Dealer Score:{this.state.dealerScore}</p>
           </div>
-        <p>dealer hand Val: {dealerHandVal}</p>
-        <p>Dealer Score:{dealerScore}</p>
-      </div>
-
-      <div className="message">
-        <h2>Player, What would you like to do?</h2>
-
-        <button
-          onClick={() => {
-            hit("player");
-          }}
-        >
-          Hit
-        </button>
-        <button
-          onClick={() => {
-            hit("dealer");
-          }}
-        >
-          Hold
-        </button>
-      </div>
-
-      <div className="hand">
-        Player Hand
-
-        <div className="cardHolder">
-        {playerCardMapper}
-
+    
+          <div className="message">
+            <h2>Player, What would you like to do?</h2>
+    
+            <button
+              onClick={() => {
+                this.hit("player");
+              }}
+            >
+              Hit
+            </button>
+            <button
+              onClick={() => {
+                this.hit("dealer");
+              }}
+            >
+              Hold
+            </button>
+          </div>
+    
+          <div className="hand">
+            Player Hand
+    
+            <div className="cardHolder">
+            {playerCardMapper}
+    
+            </div>
+            <p>Player hand Val: {this.state.playerHandVal}</p>
+            <p>Player Score:{this.state.playerScore}</p>
+          </div>
+    
+    
+    
+    
         </div>
-        <p>Player hand Val: {playerHandVal}</p>
-        <p>Player Score:{playerScore}</p>
-      </div>
-   
-      <button onClick={()=>{
-          console.log(count, 'before')
-          setCount(35)
-          console.log(count, 'after')
-      }}>Set Count {count}</button>
+      );
+  }
 
-
-
-    </div>
-  );
 };
 
-export default Game;
+
