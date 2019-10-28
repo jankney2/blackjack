@@ -59,28 +59,24 @@ export default class Game extends Component {
       this.deal();
     }
 
-
-    if(initPlayerVal>21 && initDealerVal>21){
-      alert('wash')
-      this.deal()
+    if (initPlayerVal > 21 && initDealerVal > 21) {
+      alert("wash");
+      this.deal();
     }
-    if(initPlayerVal>21){
-      alert('player bust')
+    if (initPlayerVal > 21) {
+      alert("player bust");
       this.setState({
-        dealerScore:this.state.dealerScore+1
-      })
-      this.deal()
+        dealerScore: this.state.dealerScore + 1
+      });
+      this.deal();
     }
 
-    if(initDealerVal>21){
-      alert('dealer bust')
-        this.setState({
-          playerScore: this.state.playerScore+1
-        })
-      
+    if (initDealerVal > 21) {
+      alert("dealer bust");
+      this.setState({
+        playerScore: this.state.playerScore + 1
+      });
     }
-
-
   };
 
   getNewCard = () => {
@@ -92,12 +88,20 @@ export default class Game extends Component {
     let newCard = this.getNewCard();
     let newVal = this.state.dealerHandVal + newCard.value;
 
+    if(newCard.faceValue==='A'&&newVal>21){
+      newVal-=10
+    }
+
+
+
     await this.setState({
       dealerHandVal: newVal,
       dealerHand: [...this.state.dealerHand, newCard]
     });
-
-    this.winLogic('dealer');
+setTimeout(() => {
+  this.winLogic("dealer");
+  
+}, 200);
 
     return;
   };
@@ -106,6 +110,9 @@ export default class Game extends Component {
     let newCard = this.getNewCard();
     if (type === "player") {
       let newVal = this.state.playerHandVal + newCard.value;
+      if(newCard.faceValue==='A'&&newVal>21){
+        newVal-=10
+      }
 
       await this.setState({
         playerHand: [...this.state.playerHand, newCard],
@@ -113,16 +120,22 @@ export default class Game extends Component {
       });
       console.log(this.state.playerHandVal, "phv");
       setTimeout(() => {
-
-      this.winLogic('player');
+        this.winLogic("player");
       }, 200);
     }
 
     if (type === "dealer") {
-      
       if(this.state.dealerHandVal===this.state.playerHandVal){
-        this.dealerHit()
+        this.winLogic('dealer')
         return
+      }
+      if(this.state.dealerHandVal>this.state.playerHandVal){
+        this.winLogic('dealer')
+        return
+      }
+      if (this.state.dealerHandVal === this.state.playerHandVal) {
+        this.dealerHit();
+        return;
       }
 
       if (this.state.dealerHandVal < this.state.playerHandVal) {
@@ -136,15 +149,15 @@ export default class Game extends Component {
       }
 
       if (this.state.dealerHandVal > this.state.playerHandVal) {
-        this.winLogic('dealer');
-        return 
+        this.winLogic("dealer");
+        return;
       }
     }
   };
 
   winLogic = type => {
     //player wins
-    if(type==='player'){
+    if (type === "player") {
       if (this.state.playerHandVal === 21) {
         alert("you won the hand!");
         this.setState({
@@ -153,7 +166,7 @@ export default class Game extends Component {
         this.deal();
         return;
       }
-  
+
       if (this.state.playerHandVal > 21) {
         alert("player bust :(");
         this.setState({
@@ -161,12 +174,11 @@ export default class Game extends Component {
         });
         this.deal();
         return;
-      }else {
-        return
+      } else {
+        return;
       }
-
     }
-    
+
     //dealer logic
 
     if (this.state.dealerHandVal > 21) {
@@ -189,23 +201,38 @@ export default class Game extends Component {
 
     //when dealer is greater than it doesn't trigger a win
 
-    if (this.state.dealerHandVal > this.state.playerHandVal && type==='dealer') {
+    if (
+      this.state.dealerHandVal > this.state.playerHandVal &&
+      type === "dealer"
+    ) {
       alert("dealer win!");
       this.setState({
         dealerScore: this.state.dealerScore + 1
       });
+      this.deal();
+      return;
+    }
+
+    if (
+      this.state.dealerHandVal <= 17 &&
+      this.state.playerHandVal === this.state.dealerHandVal
+    ) {
+      this.hit("dealer");
+      return;
+    }
+
+    if(this.state.dealerHandVal===this.state.playerHandVal){
+      alert('dealer win!')
+      this.setState({
+        dealerScore:this.state.dealerScore+1
+      })
       this.deal()
-      return 
-    }
-
-    if(this.state.dealerHandVal<17&&this.state.playerHandVal===this.state.dealerHandVal){
-      this.hit('dealer')
       return
     }
 
-    if(this.state.dealerHandVal<this.state.playerHandVal){
-      this.hit('dealer')
-      return
+    if (this.state.dealerHandVal < this.state.playerHandVal) {
+      this.hit("dealer");
+      return;
     }
     return;
   };
@@ -218,11 +245,11 @@ export default class Game extends Component {
 
   render() {
     let playerCardMapper = this.state.playerHand.map((el, i) => {
-      return <Card suit={el.suit} key={i} val={el.value} />;
+      return <Card suit={el.suit} key={i} val={el.faceValue} />;
     });
 
     let dealerCardMapper = this.state.dealerHand.map((el, i) => {
-      return <Card suit={el.suit} key={i} val={el.value} />;
+      return <Card suit={el.suit} key={i} val={el.faceValue} />;
     });
 
     return (
@@ -236,12 +263,12 @@ export default class Game extends Component {
         <div className="hand">
           Player Hand
           <div className="cardHolder">{playerCardMapper}</div>
-          <p>Player hand Val: {this.state.playerHandVal}</p>
-          <p>Player Score:{this.state.playerScore}</p>
+          <p>Your hand total: {this.state.playerHandVal}</p>
+          <p>Your Score:{this.state.playerScore}</p>
         </div>
 
         <div className="message">
-          <h2>Player, What would you like to do?</h2>
+          <h2>What would you like to do?</h2>
 
           <button
             onClick={() => {
